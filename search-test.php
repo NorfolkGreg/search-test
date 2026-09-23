@@ -1,1 +1,1 @@
-echo '<!-- Search Test: ' . print_r($pages, true) . ' -->';
+echo '<!-- Search Test: top-level keys = ' . implode(', ', array_keys($pages)) . ' -->';
