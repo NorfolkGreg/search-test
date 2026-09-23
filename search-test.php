@@ -93,7 +93,7 @@ $menuLinks = getMenuLinks($menuItems);
  */
 $pages = $Wcms->get('pages');
 
-$query = 'castle';
+$query = 'xxx';
 
 $matches = [];
 
