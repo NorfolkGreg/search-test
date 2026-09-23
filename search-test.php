@@ -31,36 +31,32 @@ function findSearchablePages($pages, $path = '') {
     return $searchable;
 }
 
-function pageContainsQuery($page, $query) {
-    $title = $page->title ?? '';
-    $content = $page->content ?? '';
-
-    $text = $title . ' ' . strip_tags($content);
-
-    return stripos($text, $query) !== false;
-}
-
 $pages = $Wcms->get('pages');
-
 $searchablePages = findSearchablePages($pages);
 
 $query = 'the';
-$matches = [];
+$results = [];
 
 foreach ($searchablePages as $path) {
     $parts = explode('/', $path);
-
     $page = $pages;
 
     foreach ($parts as $part) {
         $page = $page->{$part};
     }
 
-    if (pageContainsQuery($page, $query)) {
-        $matches[] = $path;
-    }
+    $title = $page->title ?? '';
+    $content = $page->content ?? '';
+
+    $text = $title . ' ' . strip_tags($content);
+    $found = stripos($text, $query) !== false ? 'YES' : 'NO';
+
+    $results[] = $path
+        . ' | title=' . $title
+        . ' | content=' . ($content !== '' ? 'YES' : 'NO')
+        . ' | match=' . $found;
 }
 
-echo '<!-- Search Test: query="' . $query . '", matches=' . count($matches) . "\n";
-echo implode("\n", $matches);
+echo '<!-- Search Test: diagnostic' . "\n";
+echo implode("\n", $results);
 echo ' -->';
