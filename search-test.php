@@ -4,6 +4,6 @@ global $Wcms;
 
 $pages = $Wcms->get('pages');
 $games = $pages->games;
-$subpages = $games->subpages;
+$table = $games->subpages->table;
 
-echo '<!-- Search Test: subpages type=' . gettype($subpages) . '; properties=' . implode(', ', array_keys(get_object_vars($subpages))) . ' -->';
+echo '<!-- Search Test: table fields = ' . implode(', ', array_keys(get_object_vars($table))) . ' -->';
