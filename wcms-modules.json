@@ -1,0 +1,13 @@
+{
+    "version": 1,
+    "plugins": {
+        "search-test": {
+            "name": "Search Test",
+            "repo": "https://github.com/NorfolkGreg/search-test/tree/main",
+            "zip": "https://github.com/NorfolkGreg/search-test/archive/refs/heads/main.zip",
+            "summary": "Stage 1 test plugin for WonderCMS search development.",
+            "version": "1.0.0",
+            "image": "https://raw.githubusercontent.com/NorfolkGreg/search-test/main/preview.jpg"
+        }
+    }
+}
