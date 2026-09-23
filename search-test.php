@@ -2,10 +2,23 @@
 
 global $Wcms;
 
-$pages = $Wcms->get('pages');
-$games = $pages->games;
-$table = $games->subpages->table;
-$castlekeep = $table->subpages->castlekeep;
-$subpages = $castlekeep->subpages;
+function countLeafPages($pages) {
+    $count = 0;
 
-echo '<!-- Search Test: castlekeep subpages type=' . gettype($subpages) . '; properties=' . implode(', ', array_keys(get_object_vars($subpages))) . ' -->';
+    foreach (get_object_vars($pages) as $page) {
+        $subpages = get_object_vars($page->subpages);
+
+        if (count($subpages) === 0) {
+            $count++;
+        } else {
+            $count += countLeafPages($page->subpages);
+        }
+    }
+
+    return $count;
+}
+
+$pages = $Wcms->get('pages');
+$leafCount = countLeafPages($pages);
+
+echo '<!-- Search Test: leaf pages found = ' . $leafCount . ' -->';
