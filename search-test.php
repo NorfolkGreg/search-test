@@ -2,8 +2,12 @@
 
 global $Wcms;
 
-function classifyMenuItems($items, $parentPath = '') {
-    $results = [];
+
+/*
+ * Build a list of menu pages that are rendered as links.
+ */
+function getMenuLinks($items, $parentPath = '') {
+    $links = [];
 
     foreach ($items as $item) {
 
@@ -36,29 +40,100 @@ function classifyMenuItems($items, $parentPath = '') {
                 || $subpage->visibility !== 'hide';
         });
 
-        $type = empty($visibleSubpages) ? 'LINK' : 'BUTTON';
+        /*
+         * No visible children means customClickMenu()
+         * renders this item as a normal link.
+         */
+        if (empty($visibleSubpages)) {
+            $links[] = $currentPath;
+        }
 
-        $results[] = $currentPath . ' = ' . $type;
-
+        /*
+         * Continue through ALL menu children, including hidden ones.
+         */
         if (!empty($subpages)) {
-            $results = array_merge(
-                $results,
-                classifyMenuItems($subpages, $currentPath)
+            $links = array_merge(
+                $links,
+                getMenuLinks($subpages, $currentPath)
             );
         }
     }
 
-    return $results;
+    return $links;
 }
 
+
+/*
+ * Walk the complete pages database and return every page path.
+ */
+function getAllPagePaths($pages, $parentPath = '') {
+    $paths = [];
+
+    foreach (get_object_vars($pages) as $key => $page) {
+
+        $currentPath = $parentPath === ''
+            ? $key
+            : $parentPath . '/' . $key;
+
+        $paths[] = $currentPath;
+
+        $subpages = get_object_vars($page->subpages);
+
+        if (!empty($subpages)) {
+            $paths = array_merge(
+                $paths,
+                getAllPagePaths($page->subpages, $currentPath)
+            );
+        }
+    }
+
+    return $paths;
+}
+
+
+/*
+ * Get the menu structure.
+ */
 $menuConfig = $Wcms->get('config', 'menuItems');
 
 $menuItems = is_object($menuConfig)
     ? get_object_vars($menuConfig)
     : (array)$menuConfig;
 
-$results = classifyMenuItems($menuItems);
+$menuLinks = getMenuLinks($menuItems);
 
-echo '<!-- Search Test: recursive menu classification';
-echo "\n" . implode("\n", $results);
+
+/*
+ * Get every actual page in the database.
+ */
+$pages = $Wcms->get('pages');
+
+$allPages = getAllPagePaths($pages);
+
+
+/*
+ * A page is searchable if:
+ *   1. It exists in the pages database.
+ *   2. It is a LINK in the menu.
+ *   3. It is not search or 404.
+ */
+$searchablePages = [];
+
+foreach ($allPages as $path) {
+
+    if ($path === 'search' || $path === '404') {
+        continue;
+    }
+
+    if (in_array($path, $menuLinks, true)) {
+        $searchablePages[] = $path;
+    }
+}
+
+
+/*
+ * Display the result for testing.
+ */
+echo '<!-- Search Test: searchable pages = ' . count($searchablePages);
+echo "\n" . implode("\n", $searchablePages);
 echo "\n -->";
