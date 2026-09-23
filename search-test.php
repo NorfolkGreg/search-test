@@ -5,6 +5,7 @@ global $Wcms;
 $pages = $Wcms->get('pages');
 $games = $pages->games;
 $table = $games->subpages->table;
-$subpages = $table->subpages;
+$castlekeep = $table->subpages->castlekeep;
+$subpages = $castlekeep->subpages;
 
-echo '<!-- Search Test: table subpages type=' . gettype($subpages) . '; properties=' . implode(', ', array_keys(get_object_vars($subpages))) . ' -->';
+echo '<!-- Search Test: castlekeep subpages type=' . gettype($subpages) . '; properties=' . implode(', ', array_keys(get_object_vars($subpages))) . ' -->';
