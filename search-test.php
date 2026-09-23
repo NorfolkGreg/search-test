@@ -40,17 +40,10 @@ function getMenuLinks($items, $parentPath = '') {
                 || $subpage->visibility !== 'hide';
         });
 
-        /*
-         * No visible children means customClickMenu()
-         * renders this item as a normal link.
-         */
         if (empty($visibleSubpages)) {
             $links[] = $currentPath;
         }
 
-        /*
-         * Continue through ALL menu children, including hidden ones.
-         */
         if (!empty($subpages)) {
             $links = array_merge(
                 $links,
@@ -64,35 +57,27 @@ function getMenuLinks($items, $parentPath = '') {
 
 
 /*
- * Walk the complete pages database and return every page path.
+ * Find a page in the nested pages structure from its full path.
  */
-function getAllPagePaths($pages, $parentPath = '') {
-    $paths = [];
+function getPageByPath($pages, $path) {
+    $parts = explode('/', $path);
+    $current = $pages;
 
-    foreach (get_object_vars($pages) as $key => $page) {
+    foreach ($parts as $index => $part) {
 
-        $currentPath = $parentPath === ''
-            ? $key
-            : $parentPath . '/' . $key;
-
-        $paths[] = $currentPath;
-
-        $subpages = get_object_vars($page->subpages);
-
-        if (!empty($subpages)) {
-            $paths = array_merge(
-                $paths,
-                getAllPagePaths($page->subpages, $currentPath)
-            );
+        if ($index === 0) {
+            $current = $current->{$part};
+        } else {
+            $current = $current->subpages->{$part};
         }
     }
 
-    return $paths;
+    return $current;
 }
 
 
 /*
- * Get the menu structure.
+ * Get menu links.
  */
 $menuConfig = $Wcms->get('config', 'menuItems');
 
@@ -104,36 +89,36 @@ $menuLinks = getMenuLinks($menuItems);
 
 
 /*
- * Get every actual page in the database.
+ * Search the legitimate searchable pages.
  */
 $pages = $Wcms->get('pages');
 
-$allPages = getAllPagePaths($pages);
+$query = 'castle';
 
+$matches = [];
 
-/*
- * A page is searchable if:
- *   1. It exists in the pages database.
- *   2. It is a LINK in the menu.
- *   3. It is not search or 404.
- */
-$searchablePages = [];
-
-foreach ($allPages as $path) {
+foreach ($menuLinks as $path) {
 
     if ($path === 'search' || $path === '404') {
         continue;
     }
 
-    if (in_array($path, $menuLinks, true)) {
-        $searchablePages[] = $path;
+    $page = getPageByPath($pages, $path);
+
+    $title = $page->title ?? '';
+    $content = $page->content ?? '';
+
+    $text = $title . ' ' . strip_tags($content);
+
+    if (stripos($text, $query) !== false) {
+        $matches[] = $path;
     }
 }
 
 
 /*
- * Display the result for testing.
+ * Display diagnostic result.
  */
-echo '<!-- Search Test: searchable pages = ' . count($searchablePages);
-echo "\n" . implode("\n", $searchablePages);
+echo '<!-- Search Test: query="' . $query . '"; matches=' . count($matches);
+echo "\n" . implode("\n", $matches);
 echo "\n -->";
