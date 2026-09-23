@@ -4,4 +4,4 @@ global $Wcms;
 
 $pages = $Wcms->get('pages');
 
-echo '<!-- Search Test: type = ' . gettype($pages) . '; value = ' . htmlspecialchars(print_r($pages, true), ENT_QUOTES, 'UTF-8') . ' -->';
+echo '<!-- Search Test: type=' . gettype($pages) . '; count=' . count($pages) . '; keys=' . implode(', ', array_keys($pages)) . ' -->';
