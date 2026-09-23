@@ -6,7 +6,7 @@
             "repo": "https://github.com/NorfolkGreg/search-test/tree/main",
             "zip": "https://github.com/NorfolkGreg/search-test/archive/main.zip",
             "summary": "Stage 1 test plugin for WonderCMS search development.",
-            "version": "1.0.13",
+            "version": "1.0.14",
             "image": "https://raw.githubusercontent.com/NorfolkGreg/search-test/main/preview.jpg"
         }
     }
