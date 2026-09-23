@@ -2,61 +2,15 @@
 
 global $Wcms;
 
-function findSearchablePages($pages, $path = '') {
-    $searchable = [];
-
-    foreach (get_object_vars($pages) as $key => $page) {
-        $currentPath = $path === '' ? $key : $path . '/' . $key;
-
-        $subpages = get_object_vars($page->subpages);
-
-        $visibleSubpages = array_filter($subpages, function($subpage) {
-            return !isset($subpage->visibility) || $subpage->visibility !== 'hide';
-        });
-
-        if (count($visibleSubpages) === 0) {
-            if ($currentPath !== 'search' && $currentPath !== '404') {
-                $searchable[] = $currentPath;
-            }
-        }
-
-        if (count($subpages) > 0) {
-            $searchable = array_merge(
-                $searchable,
-                findSearchablePages($page->subpages, $currentPath)
-            );
-        }
-    }
-
-    return $searchable;
-}
-
 $pages = $Wcms->get('pages');
-$searchablePages = findSearchablePages($pages);
 
-$query = 'the';
-$results = [];
+$tests = [];
 
-foreach ($searchablePages as $path) {
-    $parts = explode('/', $path);
-    $page = $pages;
+$tests[] = 'games title=' . ($pages->games->title ?? '');
+$tests[] = 'games/table title=' . ($pages->games->subpages->table->title ?? '');
+$tests[] = 'games/table/castlekeep title=' . ($pages->games->subpages->table->subpages->castlekeep->title ?? '');
+$tests[] = 'wondercms/background title=' . ($pages->wondercms->subpages->background->title ?? '');
+$tests[] = 'sundry title=' . ($pages->sundry->title ?? '');
+$tests[] = 'sundry/opencamera title=' . ($pages->sundry->subpages->opencamera->title ?? '');
 
-    foreach ($parts as $part) {
-        $page = $page->{$part};
-    }
-
-    $title = $page->title ?? '';
-    $content = $page->content ?? '';
-
-    $text = $title . ' ' . strip_tags($content);
-    $found = stripos($text, $query) !== false ? 'YES' : 'NO';
-
-    $results[] = $path
-        . ' | title=' . $title
-        . ' | content=' . ($content !== '' ? 'YES' : 'NO')
-        . ' | match=' . $found;
-}
-
-echo '<!-- Search Test: diagnostic' . "\n";
-echo implode("\n", $results);
-echo ' -->';
+echo '<!-- Search Test: ' . htmlspecialchars(implode(' | ', $tests), ENT_QUOTES, 'UTF-8') . ' -->';
