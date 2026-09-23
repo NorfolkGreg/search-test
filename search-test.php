@@ -2,26 +2,14 @@
 
 global $Wcms;
 
-function findLeafPages($pages, $path = '') {
-    $leaves = [];
+$menuItems = $Wcms->get('config', 'menuItems');
 
-    foreach (get_object_vars($pages) as $key => $page) {
-        $currentPath = $path === '' ? $key : $path . '/' . $key;
-        $subpages = get_object_vars($page->subpages);
+$results = [];
 
-        if (count($subpages) === 0) {
-            $leaves[] = $currentPath;
-        } else {
-            $leaves = array_merge($leaves, findLeafPages($page->subpages, $currentPath));
-        }
+foreach (get_object_vars($menuItems) as $key => $item) {
+    if (in_array($item->slug, ['games', 'wondercms', 'sundry'])) {
+        $results[] = $item->slug . ': ' . implode(', ', array_keys(get_object_vars($item)));
     }
-
-    return $leaves;
 }
 
-$pages = $Wcms->get('pages');
-$leafPages = findLeafPages($pages);
-
-echo '<!-- Search Test: leaf pages found = ' . count($leafPages) . "\n";
-echo implode("\n", $leafPages);
-echo ' -->';
+echo '<!-- Search Test: ' . implode(' | ', $results) . ' -->';
