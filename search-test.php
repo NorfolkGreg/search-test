@@ -10,17 +10,16 @@ function findSearchablePages($pages, $path = '') {
 
         $subpages = get_object_vars($page->subpages);
 
-        // Visible children determine whether THIS page is a
-        // menu button/container or a normal searchable page.
         $visibleSubpages = array_filter($subpages, function($subpage) {
             return !isset($subpage->visibility) || $subpage->visibility !== 'hide';
         });
 
         if (count($visibleSubpages) === 0) {
-            $searchable[] = $currentPath;
+            if ($currentPath !== 'search' && $currentPath !== '404') {
+                $searchable[] = $currentPath;
+            }
         }
 
-        // Always recurse into sub-pages, regardless of visibility.
         if (count($subpages) > 0) {
             $searchable = array_merge(
                 $searchable,
@@ -32,14 +31,36 @@ function findSearchablePages($pages, $path = '') {
     return $searchable;
 }
 
+function pageContainsQuery($page, $query) {
+    $title = $page->title ?? '';
+    $content = $page->content ?? '';
+
+    $text = $title . ' ' . strip_tags($content);
+
+    return stripos($text, $query) !== false;
+}
+
 $pages = $Wcms->get('pages');
 
 $searchablePages = findSearchablePages($pages);
 
-$searchablePages = array_filter($searchablePages, function($path) {
-    return $path !== 'search';
-});
+$query = 'the';
+$matches = [];
 
-echo '<!-- Search Test: searchable pages = ' . count($searchablePages) . "\n";
-echo implode("\n", $searchablePages);
+foreach ($searchablePages as $path) {
+    $parts = explode('/', $path);
+
+    $page = $pages;
+
+    foreach ($parts as $part) {
+        $page = $page->{$part};
+    }
+
+    if (pageContainsQuery($page, $query)) {
+        $matches[] = $path;
+    }
+}
+
+echo '<!-- Search Test: query="' . $query . '", matches=' . count($matches) . "\n";
+echo implode("\n", $matches);
 echo ' -->';
