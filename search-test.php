@@ -2,36 +2,44 @@
 
 global $Wcms;
 
-$menuItems = $Wcms->get('config', 'menuItems');
-$items = is_object($menuItems) ? get_object_vars($menuItems) : (array)$menuItems;
+function findSearchablePages($pages, $path = '') {
+    $searchable = [];
 
-$results = [];
+    foreach (get_object_vars($pages) as $key => $page) {
+        $currentPath = $path === '' ? $key : $path . '/' . $key;
 
-foreach ($items as $item) {
-    $item = is_array($item) ? (object)$item : $item;
+        $subpages = get_object_vars($page->subpages);
 
-    $slug = $item->slug ?? '(no slug)';
+        // Determine which children are visible in the menu.
+        $visibleSubpages = array_filter($subpages, function($subpage) {
+            return !isset($subpage->visibility) || $subpage->visibility !== 'hide';
+        });
 
-    if (!in_array($slug, ['games', 'wondercms', 'sundry'])) {
-        continue;
+        if (count($visibleSubpages) === 0) {
+            // No visible children: this is a searchable page.
+            $searchable[] = $currentPath;
+        } else {
+            // Menu button/container: don't search its own content,
+            // but continue searching its children.
+            $searchable = array_merge(
+                $searchable,
+                findSearchablePages($page->subpages, $currentPath)
+            );
+        }
     }
 
-    $subpages = [];
-
-    if (!empty($item->subpages)) {
-        $subpages = is_object($item->subpages)
-            ? get_object_vars($item->subpages)
-            : (array)$item->subpages;
-    }
-
-    $visibleSubpages = array_filter($subpages, function($sub) {
-        $subObj = is_array($sub) ? (object)$sub : $sub;
-        return !isset($subObj->visibility) || $subObj->visibility !== 'hide';
-    });
-
-    $results[] = $slug
-        . ': children=' . count($subpages)
-        . ', visible=' . count($visibleSubpages);
+    return $searchable;
 }
 
-echo '<!-- Search Test: ' . htmlspecialchars(implode(' | ', $results), ENT_QUOTES, 'UTF-8') . ' -->';
+$pages = $Wcms->get('pages');
+
+$searchablePages = findSearchablePages($pages);
+
+// Search itself must not be searched.
+$searchablePages = array_filter($searchablePages, function($path) {
+    return $path !== 'search';
+});
+
+echo '<!-- Search Test: searchable pages = ' . count($searchablePages) . "\n";
+echo implode("\n", $searchablePages);
+echo ' -->';
