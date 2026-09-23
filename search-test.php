@@ -10,17 +10,18 @@ function findSearchablePages($pages, $path = '') {
 
         $subpages = get_object_vars($page->subpages);
 
-        // Determine which children are visible in the menu.
+        // Visible children determine whether THIS page is a
+        // menu button/container or a normal searchable page.
         $visibleSubpages = array_filter($subpages, function($subpage) {
             return !isset($subpage->visibility) || $subpage->visibility !== 'hide';
         });
 
         if (count($visibleSubpages) === 0) {
-            // No visible children: this is a searchable page.
             $searchable[] = $currentPath;
-        } else {
-            // Menu button/container: don't search its own content,
-            // but continue searching its children.
+        }
+
+        // Always recurse into sub-pages, regardless of visibility.
+        if (count($subpages) > 0) {
             $searchable = array_merge(
                 $searchable,
                 findSearchablePages($page->subpages, $currentPath)
@@ -35,7 +36,6 @@ $pages = $Wcms->get('pages');
 
 $searchablePages = findSearchablePages($pages);
 
-// Search itself must not be searched.
 $searchablePages = array_filter($searchablePages, function($path) {
     return $path !== 'search';
 });
