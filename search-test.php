@@ -3,5 +3,6 @@
 global $Wcms;
 
 $pages = $Wcms->get('pages');
+$games = $pages->games;
 
-echo '<!-- Search Test: properties = ' . implode(', ', get_object_vars($pages) ? array_keys(get_object_vars($pages)) : []) . ' -->';
+echo '<!-- Search Test: games fields = ' . implode(', ', array_keys(get_object_vars($games))) . ' -->';
