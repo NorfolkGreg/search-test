@@ -165,8 +165,13 @@ if ($matchPosition !== false) {
     
     echo '<p>';
     echo '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '">'
-        . htmlspecialchars($match['title'], ENT_QUOTES, 'UTF-8')
-        . '</a><br>';
+echo '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '">'
+    . htmlspecialchars(
+        html_entity_decode($match['title'], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+        ENT_QUOTES,
+        'UTF-8'
+    )
+    . '</a><br>';
     echo htmlspecialchars($excerpt, ENT_QUOTES, 'UTF-8');
     echo '</p>';
 }
