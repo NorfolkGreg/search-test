@@ -30,16 +30,27 @@ function getMenuLinks($items, $parentPath = '') {
         }
 
         $visibleSubpages = array_filter($subpages, function($subpage) {
-            $subpage = is_array($subpage) ? (object)$subpage : $subpage;
+            $subpage = is_array($subpage)
+                ? (object)$subpage
+                : $subpage;
 
             return !isset($subpage->visibility)
                 || $subpage->visibility !== 'hide';
         });
 
+        /*
+         * A menu item with visible children is a BUTTON.
+         * A menu item without visible children is a LINK.
+         *
+         * Only LINK pages are added to the search list.
+         */
         if (empty($visibleSubpages)) {
             $links[] = $currentPath;
         }
 
+        /*
+         * Always recurse into subpages.
+         */
         if (!empty($subpages)) {
             $links = array_merge(
                 $links,
