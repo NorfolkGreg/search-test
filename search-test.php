@@ -112,8 +112,12 @@ foreach ($menuLinks as $path) {
     $title = $page->title ?? '';
     $content = $page->content ?? '';
 
-    $plainContent = strip_tags($content);
-
+    $plainContent = html_entity_decode(
+        strip_tags($content),
+        ENT_QUOTES | ENT_HTML5,
+        'UTF-8'
+    );
+    
     $titleMatch = stripos($title, $query) !== false;
     $contentMatch = stripos($plainContent, $query) !== false;
 
@@ -140,7 +144,11 @@ foreach ($matches as $match) {
     $page = getPageByPath($pages, $match['path']);
     $content = $page->content ?? '';
 
-    $plainContent = trim(strip_tags($content));
+$plainContent = html_entity_decode(
+    strip_tags($content),
+    ENT_QUOTES | ENT_HTML5,
+    'UTF-8'
+);
 
 $matchPosition = stripos($plainContent, $query);
 
