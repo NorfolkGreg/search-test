@@ -90,7 +90,7 @@ $menuItems = is_object($menuConfig)
 
 $menuLinks = getMenuLinks($menuItems);
 
-$query = 'wo';
+$query = $_GET['q'] ?? '';
 
 $pages = $Wcms->get('pages');
 
