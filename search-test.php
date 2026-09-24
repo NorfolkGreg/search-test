@@ -141,16 +141,13 @@ foreach ($matches as $match) {
 
     echo '<p>';
     echo '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '">'
-        . htmlspecialchars(
-            html_entity_decode(
-                $match['title'],
-                ENT_QUOTES | ENT_HTML5,
-                'UTF-8'
-            ),
-            ENT_QUOTES,
-            'UTF-8'
-        )
-        . '</a><br>';
+        
+htmlspecialchars(
+    $match['title'],
+    ENT_QUOTES,
+    'UTF-8'
+)
+    . '</a><br>';
 
     $safeExcerpt = htmlspecialchars($excerpt, ENT_QUOTES, 'UTF-8');
     $safeQuery = htmlspecialchars($query, ENT_QUOTES, 'UTF-8');
