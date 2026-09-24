@@ -2,10 +2,6 @@
 
 global $Wcms;
 
-
-/*
- * Build a list of menu pages that are rendered as links.
- */
 function getMenuLinks($items, $parentPath = '') {
     $links = [];
 
@@ -55,10 +51,6 @@ function getMenuLinks($items, $parentPath = '') {
     return $links;
 }
 
-
-/*
- * Find a page using its full path.
- */
 function getPageByPath($pages, $path) {
     $parts = explode('/', $path);
     $current = $pages;
@@ -75,10 +67,6 @@ function getPageByPath($pages, $path) {
     return $current;
 }
 
-
-/*
- * Get the searchable menu links.
- */
 $menuConfig = $Wcms->get('config', 'menuItems');
 
 $menuItems = is_object($menuConfig)
@@ -87,20 +75,12 @@ $menuItems = is_object($menuConfig)
 
 $menuLinks = getMenuLinks($menuItems);
 
-
-/*
- * Search query.
- */
 $query = 'wo';
 
 $pages = $Wcms->get('pages');
 
 $matches = [];
 
-
-/*
- * Examine each searchable page.
- */
 foreach ($menuLinks as $path) {
 
     if ($path === 'search' || $path === '404') {
@@ -117,7 +97,7 @@ foreach ($menuLinks as $path) {
         ENT_QUOTES | ENT_HTML5,
         'UTF-8'
     );
-    
+
     $titleMatch = stripos($title, $query) !== false;
     $contentMatch = stripos($plainContent, $query) !== false;
 
@@ -131,10 +111,6 @@ foreach ($menuLinks as $path) {
     }
 }
 
-
-/*
- * Display diagnostic result.
- */
 echo '<div class="search-test-results" style="background-color: #fff">';
 
 foreach ($matches as $match) {
@@ -144,34 +120,37 @@ foreach ($matches as $match) {
     $page = getPageByPath($pages, $match['path']);
     $content = $page->content ?? '';
 
-$plainContent = html_entity_decode(
-    strip_tags($content),
-    ENT_QUOTES | ENT_HTML5,
-    'UTF-8'
-);
+    $plainContent = html_entity_decode(
+        strip_tags($content),
+        ENT_QUOTES | ENT_HTML5,
+        'UTF-8'
+    );
 
-$matchPosition = stripos($plainContent, $query);
+    $matchPosition = stripos($plainContent, $query);
 
-if ($matchPosition !== false) {
-    $start = max(0, $matchPosition - 20);
-    $excerpt = substr($plainContent, $start, 100);
+    if ($matchPosition !== false) {
+        $start = max(0, $matchPosition - 20);
+        $excerpt = substr($plainContent, $start, 100);
 
-    if ($start > 0) {
-        $excerpt = '...' . $excerpt;
+        if ($start > 0) {
+            $excerpt = '...' . $excerpt;
+        }
+    } else {
+        $excerpt = substr($plainContent, 0, 100);
     }
-} else {
-    $excerpt = substr($plainContent, 0, 100);
-}
-    
+
     echo '<p>';
     echo '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '">'
-echo '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '">'
-    . htmlspecialchars(
-        html_entity_decode($match['title'], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
-        ENT_QUOTES,
-        'UTF-8'
-    )
-    . '</a><br>';
+        . htmlspecialchars(
+            html_entity_decode(
+                $match['title'],
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            ),
+            ENT_QUOTES,
+            'UTF-8'
+        )
+        . '</a><br>';
     echo htmlspecialchars($excerpt, ENT_QUOTES, 'UTF-8');
     echo '</p>';
 }
