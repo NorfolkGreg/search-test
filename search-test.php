@@ -131,12 +131,17 @@ foreach ($menuLinks as $path) {
 /*
  * Display diagnostic result.
  */
-echo '<!-- Search Test: query="' . $query . '"; matches=' . count($matches);
+echo '<div class="search-test-results">';
 
 foreach ($matches as $match) {
-    echo "\n" . $match['path']
-        . ' | titleMatch=' . $match['titleMatch']
-        . ' | contentMatch=' . $match['contentMatch'];
+
+    $url = '/' . $match['path'];
+
+    echo '<p>';
+    echo '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '">'
+        . htmlspecialchars($match['title'], ENT_QUOTES, 'UTF-8')
+        . '</a>';
+    echo '</p>';
 }
 
-echo "\n -->";
+echo '</div>';
