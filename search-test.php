@@ -91,7 +91,7 @@ $menuLinks = getMenuLinks($menuItems);
 /*
  * Search query.
  */
-$query = 'xxx';
+$query = 'wo';
 
 $pages = $Wcms->get('pages');
 
