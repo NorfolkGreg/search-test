@@ -57,7 +57,7 @@ function getMenuLinks($items, $parentPath = '') {
 
 
 /*
- * Find a page in the nested pages structure from its full path.
+ * Find a page using its full path.
  */
 function getPageByPath($pages, $path) {
     $parts = explode('/', $path);
@@ -77,7 +77,7 @@ function getPageByPath($pages, $path) {
 
 
 /*
- * Get menu links.
+ * Get the searchable menu links.
  */
 $menuConfig = $Wcms->get('config', 'menuItems');
 
@@ -89,14 +89,18 @@ $menuLinks = getMenuLinks($menuItems);
 
 
 /*
- * Search the legitimate searchable pages.
+ * Search query.
  */
-$pages = $Wcms->get('pages');
-
 $query = 'xxx';
+
+$pages = $Wcms->get('pages');
 
 $matches = [];
 
+
+/*
+ * Examine each searchable page.
+ */
 foreach ($menuLinks as $path) {
 
     if ($path === 'search' || $path === '404') {
@@ -108,10 +112,18 @@ foreach ($menuLinks as $path) {
     $title = $page->title ?? '';
     $content = $page->content ?? '';
 
-    $text = $title . ' ' . strip_tags($content);
+    $plainContent = strip_tags($content);
 
-    if (stripos($text, $query) !== false) {
-        $matches[] = $path;
+    $titleMatch = stripos($title, $query) !== false;
+    $contentMatch = stripos($plainContent, $query) !== false;
+
+    if ($titleMatch || $contentMatch) {
+        $matches[] = [
+            'path' => $path,
+            'title' => $title,
+            'titleMatch' => $titleMatch ? 'YES' : 'NO',
+            'contentMatch' => $contentMatch ? 'YES' : 'NO'
+        ];
     }
 }
 
@@ -120,5 +132,11 @@ foreach ($menuLinks as $path) {
  * Display diagnostic result.
  */
 echo '<!-- Search Test: query="' . $query . '"; matches=' . count($matches);
-echo "\n" . implode("\n", $matches);
+
+foreach ($matches as $match) {
+    echo "\n" . $match['path']
+        . ' | titleMatch=' . $match['titleMatch']
+        . ' | contentMatch=' . $match['contentMatch'];
+}
+
 echo "\n -->";
