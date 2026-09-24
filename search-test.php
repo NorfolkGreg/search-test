@@ -79,18 +79,6 @@ function cleanSearchTitle($title) {
         'UTF-8'
     );
 
-    /*
-     * Convert a non-breaking space into an ordinary space.
-     */
-    $title = str_replace(
-        "\xC2\xA0",
-        ' ',
-        $title
-    );
-
-    return $title;
-}
-
 $menuConfig = $Wcms->get('config', 'menuItems');
 
 $menuItems = is_object($menuConfig)
