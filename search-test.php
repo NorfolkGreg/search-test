@@ -79,6 +79,9 @@ function cleanSearchTitle($title) {
         'UTF-8'
     );
 
+    return $title;
+}
+
 $menuConfig = $Wcms->get('config', 'menuItems');
 
 $menuItems = is_object($menuConfig)
