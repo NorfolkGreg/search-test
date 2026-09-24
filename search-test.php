@@ -140,25 +140,35 @@ foreach ($matches as $match) {
     }
 
     echo '<p>';
-    echo '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '">'
-        
-htmlspecialchars(
-    $match['title'],
-    ENT_QUOTES,
-    'UTF-8'
-)
-    . '</a><br>';
 
-    $safeExcerpt = htmlspecialchars($excerpt, ENT_QUOTES, 'UTF-8');
-    $safeQuery = htmlspecialchars($query, ENT_QUOTES, 'UTF-8');
+    echo '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '">'
+        . htmlspecialchars(
+            $match['title'],
+            ENT_QUOTES,
+            'UTF-8'
+        )
+        . '</a><br>';
+
+    $safeExcerpt = htmlspecialchars(
+        $excerpt,
+        ENT_QUOTES,
+        'UTF-8'
+    );
+
+    $safeQuery = htmlspecialchars(
+        $query,
+        ENT_QUOTES,
+        'UTF-8'
+    );
 
     $highlightedExcerpt = preg_replace(
         '/(' . preg_quote($safeQuery, '/') . ')/i',
         '<span style="background-color: yellow">$1</span>',
         $safeExcerpt
     );
-    echo $highlightedExcerpt;    
-        
+
+    echo $highlightedExcerpt;
+
     echo '</p>';
 }
 
