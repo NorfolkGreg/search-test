@@ -142,8 +142,19 @@ foreach ($matches as $match) {
 
     $plainContent = trim(strip_tags($content));
 
-    $excerpt = substr($plainContent, 0, 100);
+$matchPosition = stripos($plainContent, $query);
 
+if ($matchPosition !== false) {
+    $start = max(0, $matchPosition - 20);
+    $excerpt = substr($plainContent, $start, 100);
+
+    if ($start > 0) {
+        $excerpt = '...' . $excerpt;
+    }
+} else {
+    $excerpt = substr($plainContent, 0, 100);
+}
+    
     echo '<p>';
     echo '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '">'
         . htmlspecialchars($match['title'], ENT_QUOTES, 'UTF-8')
