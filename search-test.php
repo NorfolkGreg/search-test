@@ -151,7 +151,17 @@ foreach ($matches as $match) {
             'UTF-8'
         )
         . '</a><br>';
-    echo htmlspecialchars($excerpt, ENT_QUOTES, 'UTF-8');
+
+    $safeExcerpt = htmlspecialchars($excerpt, ENT_QUOTES, 'UTF-8');
+    $safeQuery = htmlspecialchars($query, ENT_QUOTES, 'UTF-8');
+
+    $highlightedExcerpt = preg_replace(
+        '/(' . preg_quote($safeQuery, '/') . ')/i',
+        '<span style="background-color: yellow">$1</span>',
+        $safeExcerpt
+    );
+    echo $highlightedExcerpt;    
+        
     echo '</p>';
 }
 
