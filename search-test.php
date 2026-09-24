@@ -2,65 +2,69 @@
 
 global $Wcms;
 
-function getPageByPath($pages, $path) {
-    $parts = explode('/', $path);
-    $current = $pages;
+function cleanSearchTitle($title) {
 
-    foreach ($parts as $index => $part) {
+    /*
+     * Step 1:
+     * Convert HTML entities such as &nbsp; and &#8209;
+     * into their actual characters.
+     */
+    $title = html_entity_decode(
+        $title,
+        ENT_QUOTES | ENT_HTML5,
+        'UTF-8'
+    );
 
-        if ($index === 0) {
-            $current = $current->{$part};
-        } else {
-            $current = $current->subpages->{$part};
-        }
-    }
+    /*
+     * Step 2:
+     * Remove the unwanted UTF-8 representation of a
+     * non-breaking space when it appears as Â followed
+     * by a space.
+     */
+    $title = str_replace(
+        "\xC2\xA0",
+        ' ',
+        $title
+    );
 
-    return $current;
+    return $title;
 }
 
-$pages = $Wcms->get('pages');
-
-$testPaths = [
-    'wondercms/web-design',
-    'wondercms/themes/gregcustom/media',
-    'wondercms/editors/external/windows/notepad2',
-    'sundry/opencamera',
-    'sundry/wintertonwalk'
+$testTitles = [
+    'The Basic Concept behind&nbsp;Web&nbsp;Design',
+    'Adding Images, Video&nbsp;&&nbsp;Audio to&nbsp;Your&nbsp;Site',
+    'The Notepad2 editor for&nbsp;Windows',
+    'Open Camera —&nbsp;an&nbsp;Android&nbsp;App',
+    'A Walk around Winterton&#8209;on-Sea'
 ];
 
 echo '<div style="background-color: #fff; padding: 20px;">';
 
-echo '<h2>Search Test - Title Diagnostic</h2>';
+echo '<h2>Search Test - Title Cleaning Test</h2>';
 
-foreach ($testPaths as $path) {
+foreach ($testTitles as $title) {
 
-    $page = getPageByPath($pages, $path);
+    $cleanTitle = cleanSearchTitle($title);
 
-    $title = $page->title ?? '';
+    echo '<p>';
 
-    echo '<h3>' . htmlspecialchars($path, ENT_QUOTES, 'UTF-8') . '</h3>';
-
-    echo '<p><strong>Title as PHP sees it:</strong><br>';
-
+    echo '<strong>Original:</strong><br>';
     echo htmlspecialchars(
         $title,
         ENT_QUOTES,
         'UTF-8'
     );
 
-    echo '</p>';
+    echo '<br><br>';
 
-    echo '<p><strong>Hexadecimal bytes:</strong><br>';
-
-    echo '<code>';
-
+    echo '<strong>Cleaned:</strong><br>';
     echo htmlspecialchars(
-        bin2hex($title),
+        $cleanTitle,
         ENT_QUOTES,
         'UTF-8'
     );
 
-    echo '</code></p>';
+    echo '</p>';
 
     echo '<hr>';
 }
