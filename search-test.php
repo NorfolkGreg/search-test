@@ -131,16 +131,24 @@ foreach ($menuLinks as $path) {
 /*
  * Display diagnostic result.
  */
-echo '<div class="search-test-results">';
+echo '<div class="search-test-results" style="background-color: #fff">';
 
 foreach ($matches as $match) {
 
     $url = '/' . $match['path'];
 
+    $page = getPageByPath($pages, $match['path']);
+    $content = $page->content ?? '';
+
+    $plainContent = trim(strip_tags($content));
+
+    $excerpt = substr($plainContent, 0, 100);
+
     echo '<p>';
     echo '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '">'
         . htmlspecialchars($match['title'], ENT_QUOTES, 'UTF-8')
-        . '</a>';
+        . '</a><br>';
+    echo htmlspecialchars($excerpt, ENT_QUOTES, 'UTF-8');
     echo '</p>';
 }
 
